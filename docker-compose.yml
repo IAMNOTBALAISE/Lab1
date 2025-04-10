@@ -45,6 +45,16 @@ services:
       retries: 10    # Number of retries before marking the service as unhealthy
     restart: always
 
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      restart: always
+      ports:
+        - "8081:80"
+      environment:
+        PMA_HOST: lab1-db-server
+        PMA_USER: user
+        PMA_PASSWORD: pwd
+
 volumes:
   logs:
   db_data:
