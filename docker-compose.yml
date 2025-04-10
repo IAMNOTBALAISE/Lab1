@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: "prod"
+      SPRING_DATASOURCE_URL: jdbc:mysql://lab1-db-server:3306/lab1-db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: pwd
+    volumes:
+      - logs:/app/logs
+    depends_on:
+      lab1-db-server:
+        condition: service_healthy
+
+  lab1-db-server:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    container_name: lab1-db
+    environment:
+      MYSQL_ROOT_PASSWORD: pwd
+      MYSQL_DATABASE: lab1-db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pwd
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",                # Run a command inside the container
+          "mysqladmin",         # Use the mysqladmin utility
+          "ping",               # Ping the MySQL server
+          "-uuser",             # Specify the MySQL user
+          "-ppwd",              # Specify the MySQL user's password
+          "-h",                 # Specify the host
+          "localhost",          # Ping the local MySQL server
+        ]
+      interval: 10s  # Run the health check every 10 seconds
+      timeout: 5s    # Timeout for the health check command
+      retries: 10    # Number of retries before marking the service as unhealthy
+    restart: always
+
+volumes:
+  logs:
+  db_data:
